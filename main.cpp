@@ -1,6 +1,8 @@
 #include <iostream>
 #include <math.h>
 #include <map>
+#include <stdio.h>
+#include <cstring>
 
 #define SIZE 70
 
@@ -26,8 +28,9 @@ int main() {
     for (unsigned long int i=0; i<estadosIniciais; i++) {
         initialState(i,s0,s1,SIZE);
         do {
-            pass(s0);
+           // pass(s0);
             pass(s1);
+            memcpy(s0,s1,sizeof(s1));
             pass(s1);
             transient++;
         } while (!equals(s0, s1, SIZE));
@@ -251,6 +254,3 @@ string boolArraytoString(bool *vet,int size) {
     }
     return out;
 }
-
-
-
