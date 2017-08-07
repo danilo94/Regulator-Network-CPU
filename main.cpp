@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <cstring>
 
-#define SIZE 70
+#define SIZE 5
 
 using namespace std;
 void pass (bool *vet);
@@ -15,14 +15,16 @@ string boolArraytoString (bool *vet,int size);
 
 int main() {
     std::map<string,int> atratores;
+    std::map<int,int> transiente;
+    std::map<int,int>::iterator it2;
     std::map<string,int>::iterator it;
-    double estadosIniciais = (((pow(2,25) - 1)));
+    double estadosIniciais = (((pow(2,5) - 1)));
     unsigned int period=0;
     unsigned int transient=0;
-    unsigned int histogramaTransiente[SIZE*10];
-    for (int i=0; i<SIZE*10; i++){
-        histogramaTransiente[i]=0;
-    }
+ //   unsigned int histogramaTransiente[SIZE*10];
+ //   for (int i=0; i<SIZE*10; i++){
+ //       histogramaTransiente[i]=0;
+ //   }
     bool s0[SIZE];
     bool s1[SIZE];
     for (unsigned long int i=0; i<estadosIniciais; i++) {
@@ -34,12 +36,19 @@ int main() {
             pass(s1);
             transient++;
         } while (!equals(s0, s1, SIZE));
-            histogramaTransiente[transient]++;
+ //           histogramaTransiente[transient]++;
+        if( transiente.find(transient)==transiente.end()){
+            transiente.insert(std::pair<int,int>(transient,1));
+        }
+        else{
+           it2 = transiente.find(transient);
+            it2->second+=1;
+        }
         do {
             pass(s1);
             period++;
         } while (!equals(s0, s1, SIZE));
-
+	
         string chave = boolArraytoString(s0,SIZE);
         if( atratores.find(chave)==atratores.end()){
             atratores.insert(std::pair<string,int>(chave,1));
@@ -52,9 +61,31 @@ int main() {
         period=0;
         transient=0;
     }
+
+    std::cout << "Histograma"<< endl;
+    for (std::map<int,int>::iterator it = transiente.begin(); it !=transiente.end(); ++it){
+	std::cout << it->first << " " << it->second << " " << endl;	
+    }
+
+  
+
     return 0;
 }
 
+void pass (bool *vet){
+vet[0] = ( vet[0] | vet[1] ) & ( ~ vet[4] ) & ( ~ vet[2] ) ;
+
+vet[1] = vet[3] & ~ vet[0] ;
+
+vet[2] = vet[0] & ~ vet[3] ;
+
+vet[3] = vet[0] & vet[4] & ( ~ vet[1] ) & ( ~ vet[3] ) ;
+
+vet[4] = vet[0] & ( ~ vet[4] ) & ( ~ vet[2] ) ;
+}
+
+
+/*
 //  CAC Network ( 69 Vértices )
 void pass (bool *vet){
 vet[0] = vet[41] ;
@@ -128,7 +159,7 @@ vet[67] = vet[32] ;
 vet[68] = ( vet[19] & vet[13] ) & ~ ( vet[33] | vet[7] ) ;
 vet[69] = vet[7] ;
 }
-
+*/
 
 // Equações Biológicas
 /*
