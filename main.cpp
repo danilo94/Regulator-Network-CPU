@@ -7,81 +7,151 @@
 #define SIZE 5
 
 using namespace std;
-void pass (bool *vet);
-bool equals(bool *vet1,bool *vet2,int size);
-void print (bool *vet1);
-void initialState(unsigned long int valor,bool *vet1,bool *vet2,int size);
-string boolArraytoString (bool *vet,int size);
+
+void pass(bool *vet);
+
+bool equals(bool *vet1, bool *vet2, int size);
+
+void print(bool *vet1);
+
+void initialState(unsigned long int valor, bool *vet1, bool *vet2, int size);
+
+string boolArraytoString(bool *vet, int size);
+
+int boolArraytoInt(bool *vet, int size);
 
 int main() {
-    std::map<string,int> atratores;
-    std::map<int,int> transiente;
-    std::map<int,int>::iterator it2;
-    std::map<string,int>::iterator it;
-    double estadosIniciais = (((pow(2,5) - 1)));
-    unsigned int period=0;
-    unsigned int transient=0;
- //   unsigned int histogramaTransiente[SIZE*10];
- //   for (int i=0; i<SIZE*10; i++){
- //       histogramaTransiente[i]=0;
- //   }
+    std::map<int, int> atratores;
+    std::map<int, int> transiente;
+    std::map<int, int> periodo;
+    double estadosIniciais = pow(2, 5);
+    unsigned int period = 0;
+    unsigned int transient = 0;
     bool s0[SIZE];
     bool s1[SIZE];
-    for (unsigned long int i=0; i<estadosIniciais; i++) {
-        initialState(i,s0,s1,SIZE);
+    for (unsigned long int i = 0; i < estadosIniciais; i++) {
+        initialState(i, s0, s1, SIZE);
+        std::cout << "Inicial: " << i << std::endl;
         do {
-           // pass(s0);
+            pass(s0);
             pass(s1);
-            memcpy(s0,s1,sizeof(s1));
             pass(s1);
+            std::cout << boolArraytoInt(s0, SIZE) << " " << boolArraytoInt(s1, SIZE) << std::endl;
             transient++;
         } while (!equals(s0, s1, SIZE));
- //           histogramaTransiente[transient]++;
-        if( transiente.find(transient)==transiente.end()){
-            transiente.insert(std::pair<int,int>(transient,1));
+
+        int atrator = boolArraytoInt(s0, SIZE);
+        if (atrator == i)
+            transient = 0;
+
+        if (transiente.find(transient) == transiente.end()) {
+            transiente[transient] = 1;
+        } else {
+            transiente[transient]++;
         }
-        else{
-           it2 = transiente.find(transient);
-            it2->second+=1;
-        }
+
         do {
             pass(s1);
             period++;
         } while (!equals(s0, s1, SIZE));
-	
-        string chave = boolArraytoString(s0,SIZE);
-        if( atratores.find(chave)==atratores.end()){
-            atratores.insert(std::pair<string,int>(chave,1));
+        period--;
+
+        if (periodo.find(period) == periodo.end()) {
+            periodo[period] = 1;
+        } else {
+            periodo[period]++;
         }
-        else{
-           it = atratores.find(chave);
-            it->second+=1;
+
+        std::cout << "Found: " << boolArraytoInt(s0, SIZE) << " " << boolArraytoInt(s1, SIZE) << std::endl;
+
+        if (atratores.find(atrator) == atratores.end()) {
+            atratores[atrator] = 1;
+        } else {
+            atratores[atrator]++;
         }
-        int tamanho = atratores.find(chave)->second;
-        period=0;
-        transient=0;
+        period = 0;
+        transient = 0;
+    }
+    std::cout << "Histograma Atratores:" << endl;
+    for (std::map<int, int>::iterator it = atratores.begin(); it != atratores.end(); ++it) {
+        std::cout << it->first << " " << it->second << " " << endl;
     }
 
-    std::cout << "Histograma"<< endl;
-    for (std::map<int,int>::iterator it = transiente.begin(); it !=transiente.end(); ++it){
-	std::cout << it->first << " " << it->second << " " << endl;	
+    std::cout << "Histograma Transiente:" << endl;
+    for (std::map<int, int>::iterator it = transiente.begin(); it != transiente.end(); ++it) {
+        std::cout << it->first << " " << it->second << " " << endl;
     }
 
-  
-
+    std::cout << "Histograma Periodo:" << endl;
+    for (std::map<int, int>::iterator it = periodo.begin(); it != periodo.end(); ++it) {
+        std::cout << it->first << " " << it->second << " " << endl;
+    }
     return 0;
 }
 
-void pass (bool *vet){
-vet[0] = ( vet[0] | vet[1] ) & ( ~ vet[4] ) & ( ~ vet[2] ) ;
+void initialState(unsigned long int valor, bool *vet1, bool *vet2, int size) {
+    // std::cout <<" initialState: "<< std::endl;
+    for (int i = 0; i < size; i++) {
+        vet1[i] = (valor & 1) != 0;
+        vet2[i] = vet1[i];
+        valor >>= 1;
+        //     std::cout <<vet1[i] << " ";
+    }
+    //std::cout <<" = "<< boolArraytoInt(vet1,size) << std::endl;
+}
 
-vet[1] = vet[3] & ~ vet[0] ;
+bool equals(bool *vet1, bool *vet2, int size) {
+    for (int i = 0; i < size; i++) {
+        if (vet1[i] != vet2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
-vet[2] = vet[0] & ~ vet[3] ;
+string boolArraytoString(bool *vet, int size) {
+    string out;
+    for (int i = size - 1; i >= 0; i--) {
+        if (vet[i]) {
+            out = out + "1";
+        } else {
+            out = out + "0";
+        }
+    }
+    return out;
+}
 
-vet[3] = vet[0] & vet[4] & ( ~ vet[1] ) & ( ~ vet[3] ) ;
+int boolArraytoInt(bool *vet, int size) {
+    int out = 0;
+    // std::cout <<"boolArraytoInt:"<< std::endl;
+    for (int i = size - 1; i >= 0; i--) {
+        //   std::cout << vet[i] << " ";
+        if (vet[i]) {
+            out |= 1;
+        }
+        if (i > 0) out <<= 1;
+    }
+    //  std::cout << " = " << out << std::endl;
+    return out;
+}
 
-vet[4] = vet[0] & ( ~ vet[4] ) & ( ~ vet[2] ) ;
+
+void pass(bool *vet) {
+    bool aux[5];
+    for (int i = 0; i < 5; i++)
+        aux[i] = vet[i];
+
+    vet[0] = (aux[0] | aux[1]) & (~aux[4]) & (~aux[2]);
+
+    vet[1] = aux[3] & ~aux[0];
+
+    vet[2] = aux[0] & ~aux[3];
+
+    vet[3] = aux[0] & aux[4] & (~aux[1]) & (~aux[3]);
+
+    vet[4] = aux[0] & (~aux[4]) & (~aux[2]);
+
+    return;
 }
 
 
@@ -247,41 +317,3 @@ void pass(bool *vet){
     vet[53] = vet[0] ;
 }
 */
-void initialState(unsigned long int valor, bool *vet1, bool *vet2,int size){
-    for (int i=0;i<size; i++){
-        vet1[i]= false;
-        vet2[i]= false;
-    }
-    int j=0;
-    while (valor>0 && j<size){
-        if (valor%2==1 && j<size){
-            vet1[j]=true;
-            vet2[j]=true;
-        }
-        j++;
-        valor = valor /2;
-    }
-}
-
-bool equals(bool *vet1,bool *vet2,int size){
-    for (int i=0; i<size; i++){
-        if (vet1[i]!=vet2[i]){
-            return false;
-        }
-    }
-    return true;
-}
-
-string boolArraytoString(bool *vet,int size) {
-    string out;
-
-    for (int i=0; i<size; i++ ){
-        if (vet[i]==true){
-            out = out + "1";
-        }
-        else{
-            out = out + "0";
-        }
-    }
-    return out;
-}
