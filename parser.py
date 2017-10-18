@@ -1,19 +1,19 @@
-caminho="/home/danilo/Benchmark1(CACnetwork)69Nos.txt"
+caminho="../Benchmarks/Benchmark1(CACnetwork)69Nos.txt"
 
 
 ref = open(caminho,"r")
 operacoesLogicas = {}
 
-operacoesLogicas['not'] = '~'
-operacoesLogicas['and'] = '&'
-operacoesLogicas['or'] = '|'
+operacoesLogicas['not'] = '!'
+operacoesLogicas['and'] = '&&'
+operacoesLogicas['or'] = '||'
 operacoesLogicas['('] = '('
 operacoesLogicas[')'] = ')'
 operacoesLogicas['='] = '='
-operacoesLogicas['!'] = '~'
-operacoesLogicas['~'] = '~'
-operacoesLogicas['&'] = '&'
-operacoesLogicas['|'] = '|'
+operacoesLogicas['!'] = '!'
+operacoesLogicas['~'] = '!'
+operacoesLogicas['&'] = '&&'
+operacoesLogicas['|'] = '||'
 
 
 dict = {}
